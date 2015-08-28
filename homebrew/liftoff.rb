@@ -1,8 +1,8 @@
 require 'formula'
 
 class Liftoff < Formula
-  homepage 'https://github.com/thoughtbot/liftoff'
-  url 'http://thoughtbot.github.io/liftoff/Liftoff-__VERSION__.tar.gz'
+  homepage 'https://github.com/IntrepidPursuits/homebrew-liftoff'
+  url 'https://github.com/IntrepidPursuits/homebrew-liftoff/archive/__VERSION__.tar.gz'
   sha1 '__SHA__'
 
   depends_on 'xcproj' => :recommended
