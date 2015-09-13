@@ -23,6 +23,13 @@ module Liftoff
       :extra_config,
       :extra_test_config,
       :deployment_target
+      :git_url
+      :git_http_url
+      :git_api_url
+      :git_web_hook_url
+      :jenkins_notify_base_url
+      :jenkins_build_branch
+      :repo_name
 
     attr_writer :author,
       :company_identifier,
@@ -84,6 +91,10 @@ module Liftoff
 
     def dependency_manager_enabled?(name)
       dependency_managers.include?(name)
+    end
+
+    def repo_name
+      @project_name.gsub(" ", "-")
     end
 
     private
