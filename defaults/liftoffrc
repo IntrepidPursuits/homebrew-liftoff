@@ -1,15 +1,16 @@
 ############################################################################
 # The following keys can be used to configure defaults for project creation
 # project_name:
-# company:
-# author:
 # prefix:
-# company_identifier:
 ############################################################################
 
+author: Intrepid-Pursuits
+company: Intrepid-Pursuits
+company_identifier: io.intrepid
 test_target_name: UnitTests
 configure_git: true
-warnings_as_errors: true
+configure_jenkins: true
+warnings_as_errors: false
 enable_static_analyzer: true
 indentation_level: 4
 use_tabs: false
@@ -59,16 +60,14 @@ warnings:
 
 xcode_command: open -a 'Xcode' .
 
-project_template: swift
+project_template: objc
 
 app_target_templates:
   objc:
     - <%= project_name %>:
       - Categories:
-      - Protocols:
-      - Headers:
+      - Networking:
       - Models:
-      - ViewModels:
       - Controllers:
         - <%= prefix %>AppDelegate.h
         - <%= prefix %>AppDelegate.m
@@ -86,7 +85,7 @@ app_target_templates:
   swift:
     - <%= project_name %>:
       - Extensions:
-      - Protocols:
+      - Networking:
       - Models:
       - ViewModels:
       - Controllers:

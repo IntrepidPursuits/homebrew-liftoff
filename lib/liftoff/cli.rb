@@ -21,17 +21,6 @@ module Liftoff
       OptionParser.new do |opts|
         opts.banner = 'usage: liftoff [-v | --version] [-h | --help] [config options] [path]'
 
-        @options[:author] = "Intrepid Pursuits"
-        @options[:company] = "Intrepid Pursuits"
-        @options[:company_identifier] = "io.intrepid"
-        @options[:configure_git] = true
-        @options[:configure_jenkins] = true
-        @options[:dependency_managers] += ["cocoapods"]
-        @options[:enable_settings] = false
-        @options[:indentation_level] = 4
-        @options[:strict_prompts] = false
-        @options[:xcode_command] = false
-
         opts.on('-v', '--version', 'Display the version and exit') do
           puts "Version: #{Liftoff::VERSION}"
           exit
