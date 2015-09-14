@@ -53,6 +53,7 @@ module Liftoff
       enable_static_analyzer
       perform_extra_config
       save_project
+      install_pods
       generate_git
     end
 
@@ -98,6 +99,10 @@ module Liftoff
 
         raise "Error: A job with this name already exists on Jenkins. Use the --no-jenkins flag or Contact an admin to remove it" unless @jenkins_manager.job_exists? == false
       end
+    end
+
+    def install_pods
+      `pod install`
     end
 
     def set_indentation_level
