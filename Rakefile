@@ -4,7 +4,7 @@ require 'rake/packagetask'
 $LOAD_PATH.unshift(File.expand_path('../lib', __FILE__))
 require 'liftoff/version'
 
-GEMS_DIR = 'vendor/gems'
+GEMS_DIR = 'vendor/gems/ruby/2.0.0/gems'
 GH_PAGES_DIR = 'gh-pages'
 HOMEBREW_FORMULAE_DIR = 'homebrew-formulae'
 

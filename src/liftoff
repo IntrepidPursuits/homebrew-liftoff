@@ -3,7 +3,7 @@
 require 'pathname'
 
 file_path = Pathname.new(__FILE__).realpath
-gems_setup = File.expand_path('../../vendor/gems/setup.rb', file_path)
+gems_setup = File.expand_path('../../vendor/gems/ruby/2.0.0/gems/setup.rb', file_path)
 
 require gems_setup
 
