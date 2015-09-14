@@ -5,6 +5,7 @@ module Liftoff
       @client = nil
       @jenkins_username = ""
       @jenkins_token = ""
+      @config_template_name = "ios-template-standard"
       @old_config_contents = ""
       @new_config_contents = ""
       @jenkins_base_url = "http://build.intrepid.io:8080"
@@ -66,32 +67,30 @@ module Liftoff
       puts "Preparing to create Jenkins job"
       raise "A Jenkins job with this name already exists. Contact an admin" unless job_exists?
 
-      @old_config_contents = @client.get_config?("#{@config.repo_name}")
+      @old_config_contents = @client.job.get_config("#{@config_template_name}")
       raise "Unable to fetch iOS Project Template. Contact an admin" unless (@old_config_contents.length > 0)
     end
 
     def prepare_config_file
       puts "Preparing job configuration file"
-      xml_doc = Nokogiri::XML(@old_config_contents)
 
+      # Replace Description
+      project_description = "Intrepid Pursuits \r\n Github Repository: #{@config.git_http_url} \r\n Created By Liftoff Version __VERSION__"
+      @new_config_contents = @old_config_contents.sub("INTREPID_LIFTOFF_SCRIPT_PROJECT_DESCRIPTION", project_description)
+      
       # Replace github URL
-      xml_doc.at_xpath('//url').content = "#{git_url}"
-
+      @new_config_contents = @new_config_contents.sub("INTREPID_LIFTOFF_SCRIPT_SSH_GIT_REPO_URL", @config.git_url)
+      
       # Replace project target name
-      val_to_replace = "CHANGE_THIS_VALUE_TO_YOUR_PROJECT_TARGET_NAME"
-      properties_content = xml_doc.at_xpath('//propertiesContent').content
-      properties_content.gsub(val_to_replace, "#{@config.project_name}")
-      properties_content.gsub("\n", "&#xd;")
-      xml_doc.at_xpath('//propertiesContent').content = properties_content
+      @new_config_contents = @new_config_contents.sub("INTREPID_LIFTOFF_SCRIPT_PROJECT_TARGET_NAME", @config.project_name)
 
-      # Replace email notification
-      val_to_replace = "$SHORT_NAME"
-      notification_content = xml.at_xpath('//defaultContent').content
-      notification_content.gsub(val_to_replace, "#{@config.repo_name}")
-
+      # Replace email notification body with project names
+      @new_config_contents = @new_config_contents.sub("INTREPID_LIFTOFF_SCRIPT_EMAIL_CONTENT_NAME", @config.project_name)
+      @new_config_contents = @new_config_contents.sub("INTREPID_LIFTOFF_SCRIPT_EMAIL_CONTENT_URL_NAME", @config.repo_name)
+      
+      # Collect emails to notify when build updates
       all_emails = []
       email_to_add = ""
-
       loop do
         email_to_add = ask "Enter an email to receive build updates (Blank to skip): "
         if email_to_add.length > 0
@@ -102,8 +101,9 @@ module Liftoff
         break if email_to_add.length == 0
       end
 
-      xml.at_xpath('//recipientList').content = all_emails.join(', ')
-      @new_config_contents = xml.to_xml
+      # Replace email recipients 
+      @new_config_contents = @new_config_contents.sub("INTREPID_LIFTOFF_SCRIPT_EMAIL_CONTENT_RECIPIENTS", all_emails.join(', '))
+      
     end
 
     def create_job

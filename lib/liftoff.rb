@@ -6,7 +6,6 @@ require 'etc'
 require 'find'
 require 'net/https'
 require 'json'
-require 'nokogiri'
 
 require 'highline/import'
 require 'xcodeproj'
