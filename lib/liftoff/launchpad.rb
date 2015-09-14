@@ -83,8 +83,8 @@ module Liftoff
 
     def check_github
       unless @config.configure_git == false
-        if git_needs_authorization?
-          @repo_manager.authorize_user          
+        if @repo_manager.needs_authorization?
+          @repo_manager.authorize_user    
         end
 
         raise "You are not a part of the Intrepid Organization. Contact an admin to get added" unless @repo_manager.user_is_on_team?
@@ -93,7 +93,7 @@ module Liftoff
 
     def check_jenkins
       unless @config.configure_jenkins == false
-        if jenkins_needs_authorization?
+        if jenkins_manager.needs_authorization?
           @jenkins_manager.authorize_user
         end
 
