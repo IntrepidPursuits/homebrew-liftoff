@@ -32,7 +32,7 @@ module Liftoff
     def authorize_user
       puts "Authorizing GitHub"
       username = ask "Github Username: "
-      github_pass = Password.get("Github Password: ")
+      github_pass = ask("Github Password: ") {|q| q.echo = false}
 
       uri = URI('https://github.com/login/oauth/authorize')
       payload ={

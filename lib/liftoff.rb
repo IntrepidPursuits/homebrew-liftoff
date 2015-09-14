@@ -7,7 +7,6 @@ require 'find'
 require 'net/https'
 require 'json'
 require 'nokogiri'
-require 'password'
 
 require 'highline/import'
 require 'xcodeproj'
