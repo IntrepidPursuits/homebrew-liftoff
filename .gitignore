@@ -1,5 +1,6 @@
 vendor/gems
 pkg/
+.bundle/
 
 # Sub-repositories for release
 gh-pages

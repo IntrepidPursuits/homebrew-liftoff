@@ -6,7 +6,6 @@ class Liftoff < Formula
   sha1 '__SHA__'
 
   depends_on 'xcproj' => :recommended
-  depends_on 'jenkins_api_client' => :recommended
 
   def install
     prefix.install 'defaults', 'templates', 'vendor'
