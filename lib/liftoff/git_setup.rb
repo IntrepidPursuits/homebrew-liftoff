@@ -23,12 +23,14 @@ module Liftoff
     end
 
     def initialize_repo
-      `git init`
+      `git clone #{@config.git_url} .`
     end
 
     def create_initial_commit
+      `git checkout -b develop`
       `git add -A`
-      `git commit --message='Initial Commit'`
+      `git commit --message='Initial Project'`
+      `git push -f origin develop`
     end
 
     def needs_git_init?
