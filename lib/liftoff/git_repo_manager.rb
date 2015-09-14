@@ -12,7 +12,7 @@ module Liftoff
     def setup
       if @config.configure_git
         puts "Setting up remote Github Repository"
-        if needs_authorization ? == false
+        if needs_authorization? == false
           get_local_token
           user_is_on_team?
         else
@@ -139,25 +139,23 @@ module Liftoff
       if sha
         url = "#{@config.git_api_url}/git/refs"
         payload ={
-          "ref" = "refs/heads/develop"
-          "sha" = sha
+          "ref" => "refs/heads/develop",
+          "sha" => sha
         }
         res = simplePOSTRequest(url, payload)
         if res.header.code != "201"
           puts "Non-Fatal: Encountered a non 201 status code while creating the develop branch"
         end
       end
-
     end
 
     def create_webhooks
       puts "Creating Web Hooks"
       jenkins_url = "#{@config.jenkins_notify_base_url}#{@config.git_http_url}&branches=#{jenkins_build_branch}"
-      HMAC_DIGEST = OpenSSL::Digest::Digest.new('sha1')
       secret = "93b3d9ab3cd1e87d3f5ffa34f"
 
       payload ={
-        "name" => "jenkins"
+        "name" => "jenkins",
         "active" => true,
         "events" => ["push"],
         "config" => {
@@ -212,4 +210,5 @@ module Liftoff
         http.request(req)
       }
     end
+  end
 end
