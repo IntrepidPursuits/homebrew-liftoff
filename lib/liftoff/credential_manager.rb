@@ -1,7 +1,6 @@
 module Liftoff
   class CredentialManager
     def initialize()
-      @fileManager = fileManager
       @jenkins_token_name = "jenkins_token"
       @jenkins_username = "jenkins_user"
       @github_token_name = "github"
