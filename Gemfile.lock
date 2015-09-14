@@ -26,5 +26,9 @@ PLATFORMS
 
 DEPENDENCIES
   highline (~> 1.6)
+  jenkins_api_client (~> 1.4.0)
   rspec
   xcodeproj (~> 0.19.3)
+
+BUNDLED WITH
+   1.10.6
