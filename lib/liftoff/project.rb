@@ -3,6 +3,8 @@ module Liftoff
     def initialize(configuration)
       @name = configuration.project_name
       @deployment_target = configuration.deployment_target
+      configure_build_configurations
+
       @test_target_name = configuration.test_target_name
       set_company_name(configuration.company)
       set_prefix(configuration.prefix)
@@ -90,6 +92,22 @@ module Liftoff
       target.build_configurations.each do |configuration|
         configuration.build_settings['FRAMEWORK_SEARCH_PATHS'] = ['$(SDKROOT)/Developer/Library/Frameworks', '$(inherited)', '$(DEVELOPER_FRAMEWORKS_DIR)']
       end
+    end
+
+    def configure_build_configurations
+      preprocessor_key = "GCC_PREPROCESSOR_DEFINITIONS"
+      xcode_project.build_configuration_list.build_configurations.clear
+
+      beta_config = xcode_project.add_build_configuration("Beta", :debug)
+      beta_config.build_settings[preprocessor_key] = ["PRODUCTION=0", "BETA=1", "STAGING=0", "DEBUG=0"]
+      
+      staging_config = xcode_project.add_build_configuration("Staging", :debug)
+      staging_config.build_settings[preprocessor_key] = ["PRODUCTION=0", "BETA=0", "STAGING=1", "DEBUG=1"]
+
+      prod_config = xcode_project.add_build_configuration("Production", :release)
+      prod_config.build_settings[preprocessor_key] = ["PRODUCTION=1", "BETA=0", "STAGING=0", "DEBUG=0"]
+      
+      xcode_project.build_configuration_list.default_configuration_name = "Production"
     end
 
     def xcode_project
