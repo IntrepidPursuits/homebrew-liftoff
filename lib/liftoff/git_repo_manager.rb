@@ -7,6 +7,7 @@ module Liftoff
       @team_id = 0
       @team_slug = "ios-developers"
       @organization_string = "IntrepidPursuits"
+      @jenkins_notify_base_url = "http://build.intrepid.io:8080/git/notifyCommit?url="
     end
 
     def setup
@@ -151,7 +152,7 @@ module Liftoff
 
     def create_webhooks
       puts "Creating Web Hooks"
-      jenkins_url = "#{@config.jenkins_notify_base_url}#{@config.git_http_url}&branches=#{jenkins_build_branch}"
+      jenkins_url = "#{@jenkins_notify_base_url}#{@config.git_http_url}&branches=#{@config.build_branch}"
       secret = "93b3d9ab3cd1e87d3f5ffa34f"
 
       payload ={

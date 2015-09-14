@@ -27,8 +27,7 @@ module Liftoff
       :git_http_url
       :git_api_url
       :git_web_hook_url
-      :jenkins_notify_base_url
-      :jenkins_build_branch
+      :build_branch
       :repo_name
 
     attr_writer :author,
@@ -95,6 +94,10 @@ module Liftoff
 
     def repo_name
       @project_name.gsub(" ", "-")
+    end
+
+    def build_branch
+      "develop"
     end
 
     private
