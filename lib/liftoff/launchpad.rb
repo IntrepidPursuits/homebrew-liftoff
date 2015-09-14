@@ -5,6 +5,15 @@ module Liftoff
     def liftoff(options)
       liftoffrc = ConfigurationParser.new(options).project_configuration
       @config = ProjectConfiguration.new(liftoffrc)
+      @repo_manager = GitRepoManager.new(@config)
+      @jenkins_manager = JenkinsManager.new(@config)
+
+      check_github
+      check_jenkins
+
+      @repo_manager.setup
+      @jenkins_manager.setup
+
       if project_exists?
         perform_project_actions
       else
@@ -69,6 +78,26 @@ module Liftoff
 
     def generate_git
       GitSetup.new(@config).setup
+    end
+
+    def check_github
+      unless @config.configure_git == false
+        if git_needs_authorization?
+          @repo_manager.authorize_user          
+        end
+
+        raise "You are not a part of the Intrepid Organization. Contact an admin to get added" unless @repo_manager.user_is_on_team?
+      end
+    end
+
+    def check_jenkins
+      unless @config.configure_jenkins == false
+        if jenkins_needs_authorization?
+          @jenkins_manager.authorize_user
+        end
+
+        raise "Error: A job with this name already exists on Jenkins. Use the --no-jenkins flag or Contact an admin to remove it" unless @jenkins_manager.job_exists? == false
+      end
     end
 
     def set_indentation_level
