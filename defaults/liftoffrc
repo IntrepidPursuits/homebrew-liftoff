@@ -18,6 +18,8 @@ dependency_managers: cocoapods
 enable_settings: true
 strict_prompts: false
 deployment_target: 8.0
+jenkins_notify_base_url: http://build.intrepid.io:8080/git/notifyCommit?url=
+jenkins_build_branch: develop
 
 run_script_phases:
   - file: todo.sh
