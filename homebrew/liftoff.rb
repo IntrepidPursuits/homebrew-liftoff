@@ -2,7 +2,7 @@ require 'formula'
 
 class Liftoff < Formula
   homepage 'https://github.com/IntrepidPursuits/homebrew-liftoff'
-  url 'https://github.com/IntrepidPursuits/homebrew-liftoff/archive/__VERSION__.tar.gz'
+  url 'http://intrepidpursuits.github.io/homebrew-liftoff/Liftoff-__VERSION__.tar.gz'
   sha1 '__SHA__'
 
   depends_on 'xcproj' => :recommended

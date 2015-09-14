@@ -38,8 +38,9 @@ module Liftoff
       ask "If no API Token exists, enter a random string of characters. This is saved in plaintext, don't use a password (Press Enter)"
       
       token = @credentialManager.jenkins_token
-      until token.length > 0 do
+      loop do
         token = ask "Copy and Paste Your API Token: "
+        break if token.length > 0
       end
 
       @jenkins_token = token
@@ -89,12 +90,16 @@ module Liftoff
       notification_content.gsub(val_to_replace, "#{@config.repo_name}")
 
       all_emails = []
-      email_to_add = ask "Enter an email to receive build updates (Blank to skip): "
+      email_to_add = ""
 
-      unless (email_to_add.length == 0) do
-        puts "Added #{email_to_add} to list of recipients"
-        all_emails += [email_to_add]
+      loop do
         email_to_add = ask "Enter an email to receive build updates (Blank to skip): "
+        if email_to_add.length > 0
+          all_emails += [email_to_add] if email_to_add.length > 0
+          puts "Added #{email_to_add} to list of recipients"
+        end
+        
+        break if email_to_add.length == 0
       end
 
       xml.at_xpath('//recipientList').content = all_emails.join(', ')
