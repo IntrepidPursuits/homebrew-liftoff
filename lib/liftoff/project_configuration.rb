@@ -22,12 +22,12 @@ module Liftoff
       :xcode_command,
       :extra_config,
       :extra_test_config,
-      :deployment_target
-      :git_url
-      :git_http_url
-      :git_api_url
-      :git_web_hook_url
-      :build_branch
+      :deployment_target,
+      :git_url,
+      :git_http_url,
+      :git_api_url,
+      :git_web_hook_url,
+      :build_branch,
       :repo_name
 
     attr_writer :author,
