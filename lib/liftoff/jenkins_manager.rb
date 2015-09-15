@@ -111,7 +111,7 @@ module Liftoff
 
     def create_job
       puts "Creating Jenkins job"
-      @client.job.create("#{@config.repo_name}", @new_config_contents)
+      @client.job.create_or_update("#{@config.repo_name}", @new_config_contents)
     end
 
     def token_exists?

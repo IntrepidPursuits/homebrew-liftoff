@@ -96,8 +96,6 @@ module Liftoff
         if jenkins_manager.needs_authorization?
           @jenkins_manager.authorize_user
         end
-
-        raise "Error: A job with this name already exists on Jenkins. Use the --no-jenkins flag or Contact an admin to remove it" unless @jenkins_manager.job_exists? == false
       end
     end
 

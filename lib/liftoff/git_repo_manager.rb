@@ -9,21 +9,24 @@ module Liftoff
       @organization_string = "IntrepidPursuits"
       @git_api_base = "https://api.github.com"
       @jenkins_notify_base_url = "http://build.intrepid.io:8080/git/notifyCommit?url="
+      @git_client = nil
+      @git_user = nil
+      @git_repo = nil
+      @git_dev_ref = nil
+      @git_hook = nil
     end
 
     def setup
       if @config.configure_git
         puts "Setting up remote Github Repository"
-        if needs_authorization? == false
-          get_local_token
-          user_is_on_team?
-        else
+        if needs_authorization?
           authorize_user
         end
 
-        create_repo
-        create_branches
-        create_webhooks
+        authorize_client
+        create_repo unless repo_exists?
+        create_branches unless branch_exists?
+        create_webhooks unless hook_exists?
       end
     end
 
@@ -33,66 +36,53 @@ module Liftoff
 
     def authorize_user
       puts "Authorizing GitHub"
+      auth_headers = {}
       username = ask "Github Username: "
       github_pass = ask("Github Password: ") {|q| q.echo = false}
+      github_2fa_token = ask("Github 2FA Token (Enter for none): ")
 
-      payload ={
-        "scope" => ["read:org","write:repo_hook","repo","user"],
-        "note" => "#{@config.company} - Blastoff Script - #{Liftoff::VERSION}"
-      }
+      @git_client = Octokit::Client.new(:login => username, :password => github_pass)
+      auth_headers = {"X-GitHub-OTP" => github_2fa_token} if github_2fa_token 
 
-      uri = URI(@git_api_base)
-      http = Net::HTTP.new(uri.host, uri.port)
-      http.use_ssl = true
-      req = Net::HTTP::Post.new("#{@git_api_base}/authorizations", initheader = {'Content-Type' =>'application/json'})
-      req.body = JSONHelper.new().generate_json(payload)
-      req.basic_auth(username, github_pass)
-      res = http.request(req)
-
-      if res.header.code == "201"
-        parsed_json = JSON.parse(res.body)
-        @token = parsed_json["token"]
-        CredentialManager.new().save_git_token(@token)
-      else
-        puts res.header
-        puts res.body
-        puts "======================================="
-        puts "Error: Unable to authenticate to GitHub"
-        if res.header.code == "401"
-          puts "Note: Encountered a 401. Do you have two-factor enabled on GitHub?"
-          raise "Two-Factor Authentication is not currently supported"
-        end
-      end
+      @token = @git_client.create_authorization(
+        :scopes => ["read:org", "write:repo_hook", "repo", "user"], 
+        :note => "#{@config.company} - Blastoff Script - #{Liftoff::VERSION}",
+        :headers => auth_headers
+        )
+      CredentialManager.new().save_git_token(@token)
     end
 
     def user_is_on_team?
       puts "Check if the user is on the Intrepid Team"
-      url = "#{@git_api_base}/user/orgs"
-      parsed_json = simple_get_request(url)
-      parsed_json.each do |org|
-        if org["login"].include? "#{organization_string}"
-          @organization_id = org["id"]
-          return user_is_on_ios_team?
-        end
-      end
-      
-      raise "Error: You are not a member of the Intrepid Github Organization. Contact an admin"
+      on_team = @client.organization_member?(@organization_string, @user.login)
+      raise "Error: You are not a member of the Intrepid Github Organization. Contact an admin" unless on_team
+      user_is_on_ios_team?
     end
 
     private
 
+    def authorize_client
+      get_local_token
+      @git_client = Octokit::Client.new(:access_token => @token)
+      if @git_client
+        @git_user = @git_client.user
+        username = user.login
+        raise "Unable to get user credentials" unless username
+      end
+    end
+
     def user_is_on_ios_team?
-      url = "#{@git_api_base}/orgs/#{@organization_id}/teams"
-      parsed_json = simple_get_request(url)
-      parsed_json.each do |team|
-        slug = team["slug"]
-        if slug == @team_slug
-          @team_id = team["id"]
-          return true
-        end
+      all_teams = @git_client.oganization_teams(@organization_string)
+      ios_team = nil
+      all_teams.each do |team|
+        next unless team.name == @team_slug
+        ios_team = ios_team
       end
 
-      raise "Error: You are not a member of the iOS Developers team on the Intrepid Github Organization. Contact an admin"
+      @team_id = ios_team.id
+      is_on_ios_team = @git_client.team_member?(@team_id, @git_user.login)
+      raise "Error: You are not a member of the iOS Developers team on the Intrepid Github Organization. Contact an admin" unless is_on_ios_team
+      is_on_ios_team
     end
 
     def oauth_token_exists?
@@ -106,105 +96,67 @@ module Liftoff
 
     def create_repo
       puts "Creating Github Repo: #{@config.repo_name}"
-      url = "#{@git_api_base}/orgs/#{organization_id}/repos"
-      payload ={
-        "name" => @config.repo_name,
-        "description" => "#{@config.project_name} by #{company}",
-        "has_wiki" => true,
-        "auto_init" => true,
-        "team_id" => @team_id,
-      }
-      res = simple_post_request(url, payload)
-      if res.header.code != "201"
-        puts res.header
-        puts res.body
-        raise "Error: Encountered a non 201 status code while creating repository"
-      end
+      @git_repo = @git_client.create_repository(@config.repo_name, {
+        :description => "#{@config.repo_name} by #{@config.company}",
+        :private => "true",
+        :has_issues => "false",
+        :has_wiki => "true",
+        :has_downloads => "false",
+        :organization => @organization_string,
+        :team_id => @team_id,
+        :auto_init => true,
+        })
 
-      parsed_json = JSON.parse(res.body)
-      @config.git_api_url = parsed_json["url"]
-      @config.git_url = parsed_json["git_url"]
-      @config.git_http_url = parsed_json["html_url"]
-      @config.git_web_hook_url = parsed_json["hooks_url"]
+      raise "Error: Failed to create repo. Contact an admin" unless @git_repo
+    end
+
+    def repo_exists?
+      @git_client.repository?(git_repo_name)
     end
 
     def create_branches
-      url = "#{@config.git_api_url}/git/refs/heads"
-      json_response = simple_get_request(url)
-      commit = json_response["commit"]
-      sha = commit["sha"]
-
-      if sha
-        url = "#{@config.git_api_url}/git/refs"
-        payload ={
-          "ref" => "refs/heads/develop",
-          "sha" => sha
-        }
-        res = simple_post_request(url, payload)
-        if res.header.code != "201"
-          puts "Non-Fatal: Encountered a non 201 status code while creating the develop branch"
-        else
-          puts "Created Branches"
-        end
+      puts "Creating Branches"
+      begin
+        master_ref = @git_client.ref(git_repo_name, "heads/master")
+        @git_dev_ref = @git_client.create_ref(git_repo_name, "heads/develop", master_ref.object.sha)
+      rescue
+        puts "Non-Fatal: Failed creating develop branch"
       end
+    end
+
+    def branch_exists?
+      begin
+        @git_client.ref(git_repo_name, "heads/develop"
+      rescue
+        return false
+      end
+      true
     end
 
     def create_webhooks
       puts "Creating Web Hooks"
-      jenkins_url = "#{@jenkins_notify_base_url}#{@config.git_http_url}&branches=#{@config.build_branch}"
-      secret = "93b3d9ab3cd1e87d3f5ffa34f"
-
-      payload ={
-        "name" => "jenkins",
-        "active" => true,
-        "events" => ["push"],
-        "config" => {
-          "url" => jenkins_url,
-          "content_type" => "json",
-          "secret" => secret,
-        }
-      }
-
-      uri = URI(@config.git_web_hook_url)
-      http = Net::HTTP::Post.new(uri, initheader = {'Content-Type' =>'application/json'})
-      http.headers['X-Hub-Signature'] = 'sha1='+OpenSSL::HMAC.hexdigest(HMAC_DIGEST, secret, payload)
-      http.headers["Authorization"] = "token #{@token}"
-      http.use_ssl = true
-      http.body = JSONHelper.new().generate_json(payload)
-      res = Net::HTTP.start(uri.hostname, uri.port) {|req|
-        req.request(http)
-      }
-      
-      if res.header.code != "201"
-        puts res.header
-        puts res.body
-        puts "Non-Fatal: Encountered a non 201 status code while creating the webhook"
+      begin
+        @git_hook = @git_client.create_hook(git_repo_name, "web", {
+          :url => "#{@jenkins_notify_base_url}#{@git_repo.html_url}&branches=#{@config.build_branch}",
+          :content_type => "json",
+          },
+          {
+            :events => ["push"],
+            :active => true
+            })
+      rescue
+        puts "Non-Fatal: Failed creating jenkins webhook"
       end
     end
 
-    def simple_get_request(url)
-      uri = URI.parse(url)
-      http = Net::HTTP.new(uri.host, uri.port)
-      http.use_ssl = true if uri.scheme == "https"
-      request = Net::HTTP::Get.new(uri.request_uri)
-
-      if @token
-        request["Authorization"] = "token #{@token}"
-      end
-
-      response = http.request(request)
-      JSON.parse(res.body)
+    def hook_exists?
+      all_hooks = @git_client.hooks(git_repo_name)
+      (all_hooks.length > 0)
     end
 
-    def simple_post_request(url, payload)
-      uri = URI(url)
-      http = Net::HTTP.new(uri.host, uri.port)
-      http.use_ssl = true if uri.scheme == "https"
-
-      req = Net::HTTP::Post.new(url, initheader = {'Content-Type' =>'application/json'})
-      req.body = JSONHelper.new().generate_json(payload)
-
-      http.request(req)
+    def git_repo_name
+      "#{organization_string}/#{@config.repo_name}"
     end
+
   end
 end

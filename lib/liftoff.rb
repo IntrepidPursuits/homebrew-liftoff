@@ -9,6 +9,8 @@ require 'json'
 
 require 'highline/import'
 require 'xcodeproj'
+require 'Octokit'
+require 'jenkins_api_client'
 
 require 'liftoff/cli'
 require "liftoff/dependency_manager_coordinator"
