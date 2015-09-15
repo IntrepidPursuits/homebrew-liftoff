@@ -16,9 +16,9 @@ module Liftoff
       if @config.configure_jenkins
         if needs_authorization?
           authorize_user
-          authorize_client
         end
         
+        authorize_client
         prepare_for_job
         prepare_config_file
         create_job
