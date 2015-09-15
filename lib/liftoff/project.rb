@@ -85,9 +85,8 @@ module Liftoff
         configuration.build_settings['ASSETCATALOG_COMPILER_APPICON_NAME'] = 'AppIcon'
         configuration.build_settings['SDKROOT'] = 'iphoneos'
         configuration.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = @deployment_target.to_s
+        configuration.build_settings['CLANG_ENABLE_MODULES'] = "YES"
       end
-      
-      xcode_project.set_setting("CLANG_ENABLE_MODULES" "YES")
     end
 
     def configure_search_paths(target)
