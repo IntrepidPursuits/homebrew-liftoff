@@ -31,7 +31,7 @@ module Liftoff
     end
 
     def needs_authorization?
-      oauth_token_exists? == false
+      (oauth_token_exists? == false)
     end 
 
     def authorize_user
@@ -55,12 +55,13 @@ module Liftoff
 
     def user_is_on_team?
       puts "Check if the user is on the Intrepid Team"
-      on_team = @client.organization_member?(@organization_string, @git_user.login)
+      on_team = @git_client.organization_member?(@organization_string, @git_user.login)
       raise "Error: You are not a member of the Intrepid Github Organization. Contact an admin" unless on_team
       user_is_on_ios_team?
     end
 
     def authorize_client
+      puts "Authorize client"
       get_local_token
       @git_client = Octokit::Client.new(:access_token => @token)
       if @git_client

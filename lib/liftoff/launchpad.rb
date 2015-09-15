@@ -84,6 +84,7 @@ module Liftoff
     def check_github
       unless @config.configure_git == false
         if @repo_manager.needs_authorization?
+          puts "User needs authorization"
           @repo_manager.authorize_user
         end
 

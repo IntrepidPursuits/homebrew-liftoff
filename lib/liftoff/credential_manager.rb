@@ -7,7 +7,7 @@ module Liftoff
     end
 
     def git_token_exists?
-      true unless (git_token == nil)
+      (git_token.length > 0)
     end
 
     def git_token
@@ -19,7 +19,7 @@ module Liftoff
     end
 
     def jenkins_token_exists?
-      true unless (jenkins_token == nil)
+      (jenkins_token.length > 0)
     end
 
     def jenkins_token
@@ -50,7 +50,7 @@ module Liftoff
     end
 
     def read_token(token_file)
-      token = nil
+      token = ""
       if File.exists?(token_file_path(token_file))
         token = File.read(token_file_path(token_file))
       end
