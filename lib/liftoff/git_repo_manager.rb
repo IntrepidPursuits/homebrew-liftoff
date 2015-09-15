@@ -155,7 +155,7 @@ module Liftoff
     end
 
     def git_repo_name
-      "#{organization_string}/#{@config.repo_name}"
+      "#{@organization_string}/#{@config.repo_name}"
     end
 
   end

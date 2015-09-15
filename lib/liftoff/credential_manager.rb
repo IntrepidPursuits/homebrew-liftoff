@@ -22,6 +22,10 @@ module Liftoff
       (jenkins_token.length > 0)
     end
 
+    def jenkins_username
+      read_token(@jenkins_username)
+    end
+
     def jenkins_token
       read_token(@jenkins_token_name)
     end

@@ -54,6 +54,8 @@ module Liftoff
     end
 
     def authorize_client
+      @jenkins_username = @credentialManager.jenkins_username
+      @jenkins_token = @credentialManager.jenkins_token
       @client = JenkinsApi::Client.new(
         :server_url => "#{@jenkins_base_url}", 
         :username => "#{@jenkins_username}", 
