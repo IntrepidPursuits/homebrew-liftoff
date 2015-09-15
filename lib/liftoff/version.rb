@@ -1,3 +1,3 @@
 module Liftoff
-  VERSION = '1.6.0.rc5'
+  VERSION = '1.6.0.rc6'
 end
