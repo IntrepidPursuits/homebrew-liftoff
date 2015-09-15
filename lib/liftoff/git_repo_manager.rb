@@ -106,6 +106,8 @@ module Liftoff
         :team_id => @team_id,
         :auto_init => true,
         })
+      @config.git_http_url = @git_repo.html_url
+      @config.git_url = @git_repo.git_url
 
       raise "Error: Failed to create repo. Contact an admin" unless @git_repo
     end
