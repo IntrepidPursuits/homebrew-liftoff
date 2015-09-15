@@ -35,7 +35,7 @@ module Liftoff
       @credentialManager.save_jenkins_username(@jenkins_username)
 
       puts "Setting up Jenkins requires you to input your API token."
-      ask "Log in to Jenkins and navigate to #{jenkins_base_url}/me/configure (Press Enter)"
+      ask "Log in to Jenkins and navigate to #{@jenkins_base_url}/me/configure (Press Enter)"
       ask "If no API Token exists, enter a random string of characters. This is saved in plaintext, don't use a password (Press Enter)"
       
       token = @credentialManager.jenkins_token

@@ -11,10 +11,8 @@ module Liftoff
       check_github
       check_jenkins
 
-      @repo_manager.setup
-      @jenkins_manager.setup
-
       if project_exists?
+        perform_build_actions
         perform_project_actions
       else
         validate_template
@@ -26,6 +24,7 @@ module Liftoff
           generate_templates
           generate_settings
           install_dependencies
+          perform_build_actions
           perform_project_actions
           open_project
         end
@@ -57,6 +56,11 @@ module Liftoff
       generate_git
     end
 
+    def perform_build_actions
+      @repo_manager.setup
+      @jenkins_manager.setup
+    end
+
     def setup_dependency_managers
       dependency_manager_coordinator.setup_dependencies
     end
@@ -84,7 +88,6 @@ module Liftoff
     def check_github
       unless @config.configure_git == false
         if @repo_manager.needs_authorization?
-          puts "User needs authorization"
           @repo_manager.authorize_user
         end
 
@@ -96,7 +99,7 @@ module Liftoff
 
     def check_jenkins
       unless @config.configure_jenkins == false
-        if jenkins_manager.needs_authorization?
+        if @jenkins_manager.needs_authorization?
           @jenkins_manager.authorize_user
         end
         

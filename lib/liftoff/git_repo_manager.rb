@@ -54,14 +54,12 @@ module Liftoff
     end
 
     def user_is_on_team?
-      puts "Check if the user is on the Intrepid Team"
       on_team = @git_client.organization_member?(@organization_string, @git_user.login)
       raise "Error: You are not a member of the Intrepid Github Organization. Contact an admin" unless on_team
       user_is_on_ios_team?
     end
 
     def authorize_client
-      puts "Authorize client"
       get_local_token
       @git_client = Octokit::Client.new(:access_token => @token)
       if @git_client
@@ -74,11 +72,11 @@ module Liftoff
     private
 
     def user_is_on_ios_team?
-      all_teams = @git_client.oganization_teams(@organization_string)
+      all_teams = @git_client.organization_teams(@organization_string)
       ios_team = nil
       all_teams.each do |team|
-        next unless team.name == @team_slug
-        ios_team = ios_team
+        next unless team.slug == @team_slug
+        ios_team = team
       end
 
       @team_id = ios_team.id
