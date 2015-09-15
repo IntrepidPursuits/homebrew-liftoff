@@ -78,11 +78,11 @@ module Liftoff
       puts "Preparing job configuration file"
 
       # Replace Description
-      project_description = "Intrepid Pursuits \r\n Github Repository: #{@config.git_http_url} \r\n Created By Liftoff Version __VERSION__"
+      project_description = "Intrepid Pursuits \r\n Github Repository: #{@config.git_http_url} \r\n Created By Liftoff Version #{__VERSION__}"
       @new_config_contents = @old_config_contents.sub("INTREPID_LIFTOFF_SCRIPT_PROJECT_DESCRIPTION", project_description)
       
       # Replace github URL
-      @new_config_contents = @new_config_contents.sub("INTREPID_LIFTOFF_SCRIPT_SSH_GIT_REPO_URL", @config.git_url)
+      @new_config_contents = @new_config_contents.sub("INTREPID_LIFTOFF_SCRIPT_SSH_GIT_REPO_URL", @config.ssh_url)
       
       # Replace project target name
       @new_config_contents = @new_config_contents.sub("INTREPID_LIFTOFF_SCRIPT_PROJECT_TARGET_NAME", @config.project_name)

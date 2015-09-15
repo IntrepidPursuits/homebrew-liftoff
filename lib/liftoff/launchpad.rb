@@ -11,12 +11,12 @@ module Liftoff
       check_github
       check_jenkins
 
+      fetch_options
+
       if project_exists?
-        perform_build_actions
         perform_project_actions
       else
         validate_template
-        fetch_options
 
         file_manager.create_project_dir(@config.path) do
           generate_project
