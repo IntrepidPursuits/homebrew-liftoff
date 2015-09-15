@@ -54,6 +54,7 @@ module Liftoff
     end
 
     def authorize_client
+      puts "Authorizing Jenkins client"
       @jenkins_username = @credentialManager.jenkins_username
       @jenkins_token = @credentialManager.jenkins_token
       @client = JenkinsApi::Client.new(
@@ -67,7 +68,7 @@ module Liftoff
 
     def prepare_for_job
       puts "Preparing to create Jenkins job"
-      raise "A Jenkins job with this name already exists. Contact an admin" unless job_exists?
+      puts "A Jenkins job with this name already exists. Contact an admin" unless (job_exists? == false)
 
       @old_config_contents = @client.job.get_config("#{@config_template_name}")
       raise "Unable to fetch iOS Project Template. Contact an admin" unless (@old_config_contents.length > 0)

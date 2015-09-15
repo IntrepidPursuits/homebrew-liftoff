@@ -35,7 +35,6 @@ module Liftoff
     end 
 
     def authorize_user
-      puts "Authorizing GitHub"
       auth_headers = {}
       username = ask "Github Username: "
       github_pass = ask("Github Password: ") {|q| q.echo = false}
@@ -60,6 +59,7 @@ module Liftoff
     end
 
     def authorize_client
+      puts "Authorizing GitHub"
       get_local_token
       @git_client = Octokit::Client.new(:access_token => @token)
       if @git_client
