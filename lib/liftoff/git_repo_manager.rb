@@ -126,7 +126,7 @@ module Liftoff
 
     def branch_exists?
       begin
-        @git_client.ref(git_repo_name, "heads/develop"
+        @git_client.ref(git_repo_name, "heads/develop")
       rescue
         return false
       end

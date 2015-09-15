@@ -5,6 +5,7 @@ group :dist do
   gem 'highline', '~> 1.6'
   gem 'jenkins_api_client', '~> 1.4.0'
   gem 'octokit', '~> 4.0'
+  gem 'nokogiri', '~> 1.6.6.2'
 end
 
 group :test do
