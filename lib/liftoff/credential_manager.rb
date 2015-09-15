@@ -7,7 +7,7 @@ module Liftoff
     end
 
     def git_token_exists?
-      true unless (git_token.length == nil)
+      true unless (git_token == nil)
     end
 
     def git_token
@@ -19,7 +19,7 @@ module Liftoff
     end
 
     def jenkins_token_exists?
-      true unless (jenkins_token.length == nil)
+      true unless (jenkins_token == nil)
     end
 
     def jenkins_token
