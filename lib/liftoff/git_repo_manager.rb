@@ -116,6 +116,8 @@ module Liftoff
       exists = @git_client.repository?(git_repo_name)
       if exists
         @git_repo = @git_client.repository(git_repo_name)
+        @config.git_http_url = @git_repo.html_url
+        @config.git_url = @git_repo.ssh_url
       end
       exists
     end
