@@ -7,6 +7,7 @@ module Liftoff
       @team_id = 0
       @team_slug = "ios-developers"
       @organization_string = "IntrepidPursuits"
+      @git_api_base = "https://api.github.com"
       @jenkins_notify_base_url = "http://build.intrepid.io:8080/git/notifyCommit?url="
     end
 
@@ -35,27 +36,26 @@ module Liftoff
       username = ask "Github Username: "
       github_pass = ask("Github Password: ") {|q| q.echo = false}
 
-      uri = URI('https://github.com/login/oauth/authorize')
       payload ={
         "scope" => ["read:org","write:repo_hook","repo","user"],
         "note" => "#{@config.company} - Blastoff Script - #{Liftoff::VERSION}"
       }
 
-      req = Net::HTTP::Post.new(uri, initheader = {'Content-Type' =>'application/json'})
-      req.use_ssl = true
+      uri = URI(@git_api_base)
+      http = Net::HTTP.new(uri.host, uri.port)
+      http.use_ssl = true
+      req = Net::HTTP::Post.new("#{@git_api_base}/authorizations", initheader = {'Content-Type' =>'application/json'})
       req.body = JSONHelper.new().generate_json(payload)
-      req.basic_auth '#{username}', '#{github_pass}'
-      res = Net::HTTP.start(uri.hostname, uri.port) {|http|
-        http.request(req)
-      }
+      req.basic_auth(username, github_pass)
+      res = http.request(req)
 
       if res.header.code == "201"
         parsed_json = JSON.parse(res.body)
         @token = parsed_json["token"]
         CredentialManager.new().save_git_token(@token)
       else
-        puts response.header
-        puts response.body
+        puts res.header
+        puts res.body
         puts "======================================="
         puts "Error: Unable to authenticate to GitHub"
         if res.header.code == "401"
@@ -67,8 +67,8 @@ module Liftoff
 
     def user_is_on_team?
       puts "Check if the user is on the Intrepid Team"
-      url = "https://api.github.com/user/orgs"
-      parsed_json = simpleGETRequest(url)
+      url = "#{@git_api_base}/user/orgs"
+      parsed_json = simple_get_request(url)
       parsed_json.each do |org|
         if org["login"].include? "#{organization_string}"
           @organization_id = org["id"]
@@ -76,15 +76,14 @@ module Liftoff
         end
       end
       
-      puts "Error: You are not a member of the Intrepid Github Organization. Contact an admin"
-      exit
+      raise "Error: You are not a member of the Intrepid Github Organization. Contact an admin"
     end
 
     private
 
     def user_is_on_ios_team?
-      url = "https:/api.github.com/orgs/#{@organization_id}/teams"
-      parsed_json = simpleGETRequest(url)
+      url = "#{@git_api_base}/orgs/#{@organization_id}/teams"
+      parsed_json = simple_get_request(url)
       parsed_json.each do |team|
         slug = team["slug"]
         if slug == @team_slug
@@ -93,8 +92,7 @@ module Liftoff
         end
       end
 
-      puts "Error: You are not a member of the iOS Developers team on the Intrepid Github Organization. Contact an admin"
-      exit
+      raise "Error: You are not a member of the iOS Developers team on the Intrepid Github Organization. Contact an admin"
     end
 
     def oauth_token_exists?
@@ -108,7 +106,7 @@ module Liftoff
 
     def create_repo
       puts "Creating Github Repo: #{@config.repo_name}"
-      url = "https://api.github.com/orgs/#{organization_id}/repos"
+      url = "#{@git_api_base}/orgs/#{organization_id}/repos"
       payload ={
         "name" => @config.repo_name,
         "description" => "#{@config.project_name} by #{company}",
@@ -116,7 +114,7 @@ module Liftoff
         "auto_init" => true,
         "team_id" => @team_id,
       }
-      res = simplePOSTRequest(url, payload)
+      res = simple_post_request(url, payload)
       if res.header.code != "201"
         puts res.header
         puts res.body
@@ -131,9 +129,8 @@ module Liftoff
     end
 
     def create_branches
-      puts "Creating Branches"
       url = "#{@config.git_api_url}/git/refs/heads"
-      json_response = simpleGETRequest(url)
+      json_response = simple_get_request(url)
       commit = json_response["commit"]
       sha = commit["sha"]
 
@@ -143,9 +140,11 @@ module Liftoff
           "ref" => "refs/heads/develop",
           "sha" => sha
         }
-        res = simplePOSTRequest(url, payload)
+        res = simple_post_request(url, payload)
         if res.header.code != "201"
           puts "Non-Fatal: Encountered a non 201 status code while creating the develop branch"
+        else
+          puts "Created Branches"
         end
       end
     end
@@ -183,10 +182,10 @@ module Liftoff
       end
     end
 
-    def simpleGETRequest(url)
+    def simple_get_request(url)
       uri = URI.parse(url)
-
       http = Net::HTTP.new(uri.host, uri.port)
+      http.use_ssl = true if uri.scheme == "https"
       request = Net::HTTP::Get.new(uri.request_uri)
 
       if @token
@@ -197,19 +196,15 @@ module Liftoff
       JSON.parse(res.body)
     end
 
-    def simplePOSTRequest(url, payload)
+    def simple_post_request(url, payload)
       uri = URI(url)
-      req = Net::HTTP::Post.new(uri, initheader = {'Content-Type' =>'application/json'})
-      req.use_ssl = true
+      http = Net::HTTP.new(uri.host, uri.port)
+      http.use_ssl = true if uri.scheme == "https"
+
+      req = Net::HTTP::Post.new(url, initheader = {'Content-Type' =>'application/json'})
       req.body = JSONHelper.new().generate_json(payload)
 
-      if @token
-        request["Authorization"] = "token #{@token}"
-      end
-
-      Net::HTTP.start(uri.hostname, uri.port) {|http|
-        http.request(req)
-      }
+      http.request(req)
     end
   end
 end
