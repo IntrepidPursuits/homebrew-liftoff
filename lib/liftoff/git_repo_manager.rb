@@ -55,7 +55,7 @@ module Liftoff
 
     def user_is_on_team?
       puts "Check if the user is on the Intrepid Team"
-      on_team = @client.organization_member?(@organization_string, @user.login)
+      on_team = @client.organization_member?(@organization_string, @git_user.login)
       raise "Error: You are not a member of the Intrepid Github Organization. Contact an admin" unless on_team
       user_is_on_ios_team?
     end
