@@ -76,41 +76,27 @@ module Liftoff
 
     def prepare_config_file
       puts "Preparing job configuration file"
-
-      puts "=================================="
-      puts "OLD XML Length: #{@old_config_contents.length}"
-      puts "=================================="
-
-      @new_config_contents = @old_config_contents.to_s
+      @new_config_contents = @old_config_contents
       
       # Replace Description
       project_description = "Intrepid Pursuits &#xd; Github Repository: #{@config.git_http_url} &#xd; Created By Liftoff Version #{Liftoff::VERSION}"
-      @new_config_contents = @new_config_contents.sub("INTREPID_LIFTOFF_SCRIPT_PROJECT_DESCRIPTION", project_description)
-
-      puts "=================================="
-      puts "NEW XML Length: #{@new_config_contents.length}"
-      puts "=================================="
+      @new_config_contents = @new_config_contents.sub("INTREPID_LIFTOFF_SCRIPT_PROJECT_DESCRIPTION", "#{project_description}")
       
       # Replace github URL
-      @new_config_contents = @new_config_contents.sub("INTREPID_LIFTOFF_SCRIPT_SSH_GIT_REPO_URL", @config.git_url)
-      
-      puts "=================================="
-      puts "NEW XML Length: #{@new_config_contents.length}"
-      puts "=================================="
+      @new_config_contents = @new_config_contents.sub("INTREPID_LIFTOFF_SCRIPT_SSH_GIT_REPO_URL", "#{@config.git_url}")
 
       # Replace project target name
-      @new_config_contents = @new_config_contents.sub("INTREPID_LIFTOFF_SCRIPT_PROJECT_TARGET_NAME", @config.project_name)
+      @new_config_contents = @new_config_contents.sub("INTREPID_LIFTOFF_SCRIPT_PROJECT_TARGET_NAME", "#{@config.project_name}")
 
       # Replace email notification body with project names
-      @new_config_contents = @new_config_contents.sub("INTREPID_LIFTOFF_SCRIPT_EMAIL_CONTENT_NAME", @config.project_name)
-      @new_config_contents = @new_config_contents.sub("INTREPID_LIFTOFF_SCRIPT_EMAIL_CONTENT_URL_NAME", @config.repo_name)
-      
+      @new_config_contents = @new_config_contents.sub("INTREPID_LIFTOFF_SCRIPT_EMAIL_CONTENT_NAME", "#{@config.project_name}")
+      @new_config_contents = @new_config_contents.sub("INTREPID_LIFTOFF_SCRIPT_EMAIL_CONTENT_URL_NAME", "#{@config.repo_name}")
+
       # Replace build branch
-      @new_config_contents = @new_config_contents.sub("INTREPID_LIFTOFF_SCRIPT_PROJECT_BUILD_BRANCH", @config.build_branch)
+      @new_config_contents = @new_config_contents.sub("INTREPID_LIFTOFF_SCRIPT_PROJECT_BUILD_BRANCH", "#{@config.build_branch}")
 
       # Collect emails to notify when build updates
       all_emails = []
-      email_to_add = ""
       loop do
         email_to_add = ask "Enter an email to receive build updates (Blank to skip): "
         if email_to_add.length > 0
@@ -122,8 +108,7 @@ module Liftoff
       end
 
       # Replace email recipients 
-      @new_config_contents = @new_config_contents.sub("INTREPID_LIFTOFF_SCRIPT_EMAIL_CONTENT_RECIPIENTS", all_emails.join(', '))
-
+      @new_config_contents = @new_config_contents.sub("INTREPID_LIFTOFF_SCRIPT_EMAIL_CONTENT_RECIPIENTS", "#{all_emails.join(', ')}")
     end
 
     def create_job

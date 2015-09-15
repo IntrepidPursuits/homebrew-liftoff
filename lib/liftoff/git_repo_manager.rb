@@ -113,7 +113,11 @@ module Liftoff
     end
 
     def repo_exists?
-      @git_client.repository?(git_repo_name)
+      exists = @git_client.repository?(git_repo_name)
+      if exists
+        @git_repo = @git_client.repository(git_repo_name)
+      end
+      exists
     end
 
     def create_branches
@@ -128,7 +132,7 @@ module Liftoff
 
     def branch_exists?
       begin
-        @git_client.ref(git_repo_name, "heads/develop")
+        @git_dev_ref = @git_client.ref(git_repo_name, "heads/develop")
       rescue
         return false
       end
