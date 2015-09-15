@@ -48,16 +48,18 @@ module Liftoff
 
     def write_token(token, file)
       setup_token_directory
-      File.write(file, token)
+      File.write(token_file_path(file), token)
     end
 
     def read_token(token_file)
-      token = ""
-      token_file_path = "#{token_directory}/#{token_file}"
-      if File.exists?(token_file_path)
-        token = File.read(token_file_path)
+      if File.exists?(token_file_path(token_file))
+        token = File.read(token_file_path(token_file))
       end
       token
+    end
+
+    def token_file_path(filename)
+      "#{token_directory}/#{token_file}"
     end
   end
 end

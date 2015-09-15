@@ -44,11 +44,12 @@ module Liftoff
       @git_client = Octokit::Client.new(:login => username, :password => github_pass)
       auth_headers = {"X-GitHub-OTP" => github_2fa_token} if github_2fa_token 
 
-      @token = @git_client.create_authorization(
+      new_auth = @git_client.create_authorization(
         :scopes => ["read:org", "write:repo_hook", "repo", "user"], 
         :note => "#{@config.company} - Blastoff Script - #{Liftoff::VERSION}",
         :headers => auth_headers
         )
+      @token = new_auth.token
       CredentialManager.new().save_git_token(@token)
     end
 
@@ -66,7 +67,7 @@ module Liftoff
       @git_client = Octokit::Client.new(:access_token => @token)
       if @git_client
         @git_user = @git_client.user
-        username = user.login
+        username = @git_user.login
         raise "Unable to get user credentials" unless username
       end
     end
