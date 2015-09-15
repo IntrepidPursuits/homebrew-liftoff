@@ -79,23 +79,25 @@ module Liftoff
 
       puts "=================================="
       puts "OLD XML Length: #{@old_config_contents.length}"
-      puts "OLD XML: #{@old_config_contents}"
       puts "=================================="
 
       @new_config_contents = @old_config_contents.to_s
       
       # Replace Description
-      project_description = "Intrepid Pursuits \n Github Repository: #{@config.git_http_url} \n Created By Liftoff Version #{Liftoff::VERSION}"
+      project_description = "Intrepid Pursuits &#xd; Github Repository: #{@config.git_http_url} &#xd; Created By Liftoff Version #{Liftoff::VERSION}"
       @new_config_contents = @new_config_contents.sub("INTREPID_LIFTOFF_SCRIPT_PROJECT_DESCRIPTION", project_description)
 
       puts "=================================="
-      puts "NEW XML Length: #{@new_config_contents}"
-      puts "NEW XML: #{@new_config_contents}"
+      puts "NEW XML Length: #{@new_config_contents.length}"
       puts "=================================="
       
       # Replace github URL
       @new_config_contents = @new_config_contents.sub("INTREPID_LIFTOFF_SCRIPT_SSH_GIT_REPO_URL", @config.git_url)
       
+      puts "=================================="
+      puts "NEW XML Length: #{@new_config_contents.length}"
+      puts "=================================="
+
       # Replace project target name
       @new_config_contents = @new_config_contents.sub("INTREPID_LIFTOFF_SCRIPT_PROJECT_TARGET_NAME", @config.project_name)
 
