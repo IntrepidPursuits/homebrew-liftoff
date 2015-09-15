@@ -70,18 +70,28 @@ module Liftoff
       puts "Preparing to create Jenkins job"
       puts "A Jenkins job with this name already exists. Contact an admin" unless (job_exists? == false)
 
-      @old_config_contents = @client.job.get_config("#{@config_template_name}")
+      @old_config_contents = @client.job.get_config(@config_template_name)
       raise "Unable to fetch iOS Project Template. Contact an admin" unless (@old_config_contents.length > 0)
     end
 
     def prepare_config_file
       puts "Preparing job configuration file"
 
-      @new_config_contents = @old_config_contents
+      puts "=================================="
+      puts "OLD XML Length: #{@old_config_contents.length}"
+      puts "OLD XML: #{@old_config_contents}"
+      puts "=================================="
+
+      @new_config_contents = @old_config_contents.to_s
       
       # Replace Description
-      # project_description = "Intrepid Pursuits \n Github Repository: #{@config.git_http_url} \n Created By Liftoff Version #{Liftoff::VERSION}"
-      # @new_config_contents = @new_config_contents.sub("INTREPID_LIFTOFF_SCRIPT_PROJECT_DESCRIPTION", project_description)
+      project_description = "Intrepid Pursuits \n Github Repository: #{@config.git_http_url} \n Created By Liftoff Version #{Liftoff::VERSION}"
+      @new_config_contents = @new_config_contents.sub("INTREPID_LIFTOFF_SCRIPT_PROJECT_DESCRIPTION", project_description)
+
+      puts "=================================="
+      puts "NEW XML Length: #{@new_config_contents}"
+      puts "NEW XML: #{@new_config_contents}"
+      puts "=================================="
       
       # Replace github URL
       @new_config_contents = @new_config_contents.sub("INTREPID_LIFTOFF_SCRIPT_SSH_GIT_REPO_URL", @config.git_url)
