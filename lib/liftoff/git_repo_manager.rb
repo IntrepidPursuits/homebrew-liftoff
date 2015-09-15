@@ -60,8 +60,6 @@ module Liftoff
       user_is_on_ios_team?
     end
 
-    private
-
     def authorize_client
       get_local_token
       @git_client = Octokit::Client.new(:access_token => @token)
@@ -71,6 +69,8 @@ module Liftoff
         raise "Unable to get user credentials" unless username
       end
     end
+
+    private
 
     def user_is_on_ios_team?
       all_teams = @git_client.oganization_teams(@organization_string)

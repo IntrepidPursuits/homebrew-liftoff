@@ -7,8 +7,7 @@ module Liftoff
     end
 
     def git_token_exists?
-      token = git_token
-      (token.length > 0)
+      true unless (git_token == nil)
     end
 
     def git_token
@@ -20,8 +19,7 @@ module Liftoff
     end
 
     def jenkins_token_exists?
-      token = jenkins_token
-      (token.length > 0)
+      true unless (jenkins_token == nil)
     end
 
     def jenkins_token
@@ -59,7 +57,7 @@ module Liftoff
     end
 
     def token_file_path(filename)
-      "#{token_directory}/#{token_file}"
+      "#{token_directory}/#{filename}"
     end
   end
 end

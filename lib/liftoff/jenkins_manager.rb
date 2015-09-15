@@ -53,8 +53,6 @@ module Liftoff
       @client.job.exists?("#{@config.repo_name}")
     end
 
-    private
-
     def authorize_client
       @client = JenkinsApi::Client.new(
         :server_url => "#{@jenkins_base_url}", 
@@ -62,6 +60,8 @@ module Liftoff
         :password => "#{@jenkins_token}"
         )
     end
+
+    private
 
     def prepare_for_job
       puts "Preparing to create Jenkins job"
