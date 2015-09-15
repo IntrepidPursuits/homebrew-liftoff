@@ -21,9 +21,9 @@ module Liftoff
         puts "Setting up remote Github Repository"
         if needs_authorization?
           authorize_user
+          authorize_client
         end
 
-        authorize_client
         create_repo unless repo_exists?
         create_branches unless branch_exists?
         create_webhooks unless hook_exists?

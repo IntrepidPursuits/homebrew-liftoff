@@ -54,6 +54,7 @@ PLATFORMS
 DEPENDENCIES
   highline (~> 1.6)
   jenkins_api_client (~> 1.4.0)
+  nokogiri (~> 1.6.6.2)
   octokit (~> 4.0)
   rspec
   xcodeproj (~> 0.19.3)
